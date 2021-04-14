@@ -17,7 +17,7 @@ Tukaj je razložen še en del programa in sicer agent
 
 
     class Agent:
-
+        #v tem podprogramu program odpre beesedilni dokument in ga bere ter kasneje tudi spreminja
         def __init__(self):
             with open('record.txt', 'r') as f:
                 self.n_games = int(f.read())
@@ -30,7 +30,8 @@ Tukaj je razložen še en del programa in sicer agent
             self.model.load_state_dict(torch.load('./model\model.pth'))
             self.model.eval()
             self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
-
+        
+        #tukaj je določeno da agent ve kam kača gleda in kam se premika
         def get_state(self, game):
             head = game.snake[0]
             point_l = Point(head.x - BLOCK_SIZE, head.y)
@@ -45,32 +46,31 @@ Tukaj je razložen še en del programa in sicer agent
 
             state = [
 
-                # Danger straight
+                # nevarnost naravnost
                 (dir_r and game.is_collision(point_r)) or
                 (dir_l and game.is_collision(point_l)) or
                 (dir_u and game.is_collision(point_u)) or
                 (dir_d and game.is_collision(point_d)),
 
-                # Danger right
+                # nevarnost na desni
                 (dir_u and game.is_collision(point_r)) or
                 (dir_d and game.is_collision(point_l)) or
                 (dir_l and game.is_collision(point_u)) or
                 (dir_r and game.is_collision(point_d)),
 
-                # Danger left
+                # nevarnost na levi
                 (dir_d and game.is_collision(point_r)) or
                 (dir_u and game.is_collision(point_l)) or
                 (dir_r and game.is_collision(point_u)) or
                 (dir_l and game.is_collision(point_d)),
 
-                # Move direction
-
+                # smeri premikanja
                 dir_l,
                 dir_r,
                 dir_u,
                 dir_d,
 
-                # Food location
+                # lokacija hrane
                 game.food.x < game.head.x,
                 game.food.x > game.head.x,
                 game.food.y < game.head.y,
@@ -82,7 +82,7 @@ Tukaj je razložen še en del programa in sicer agent
 
         def remember(self, state, action, reward, next_state, done):
             self.memory.append((state, action, reward, next_state, done))
-
+           
         def train_long_memory(self):
             if len(self.memory) > BATCH_SIZE:
                 mini_sample = random.sample(self.memory, BATCH_SIZE)  # number of tuples
@@ -110,7 +110,7 @@ Tukaj je razložen še en del programa in sicer agent
 
             return final_move
 
-
+    #tukaj je program s katerima se kača uči
     def train():
         score = 0
         plot_scores = []
@@ -122,23 +122,23 @@ Tukaj je razložen še en del programa in sicer agent
         agent = Agent()
         game = SnakeGameAI()
         while True:
-            # get old state
+            # dobi staro stanje
             state_old = agent.get_state(game)
 
-            # get move
+            # premikanje
             final_move = agent.get_action(state_old)
             # perform move
             reward, done, score = game.play_step(final_move)
             state_new = agent.get_state(game)
 
-            # train short memory
+            # treniranje kratkoročnega spomina
             agent.train_short_memory(state_old, final_move, reward, state_new, done)
 
-            # remember
+            # zapomnitev
             agent.remember(state_old, final_move, reward, state_new, done)
 
             if done:
-                # train long memory
+                # treniranje dolgoročnega spomina
                 game.reset()
                 agent.n_games += 1
                 agent.train_long_memory()
