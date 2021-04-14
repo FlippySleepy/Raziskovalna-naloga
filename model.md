@@ -1,3 +1,4 @@
+    #tukaj so vstavljene knjižnice
     import torch
     import torch.nn as nn
     import torch.optim as optim
