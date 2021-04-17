@@ -1,5 +1,5 @@
-#Raziskovalna naloga
-Tukaj je razložen še en del programa in sicer agent
+# Raziskovalna naloga
+# 
 
     #tukaj so vstavljene vse knjižnice in pa podprogrami iz drugih najnih programov 
     import torch
