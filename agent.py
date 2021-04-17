@@ -1,23 +1,26 @@
 # Raziskovalna naloga
-# 
+# Program 'agent.py' s komentarji.
 
-    #tukaj so vstavljene vse knjižnice in pa podprogrami iz drugih najnih programov 
+    # Izposoja knjižnic in podprogramov.
     import torch
+    # Knjižnica za strojno učenje.
     import random
     import numpy as np
     from collections import deque
+    # Knjižnice namenjene matematičnim operacijam.
     from game import SnakeGameAI, Direction, Point, BLOCK_SIZE
     from model import Linear_QNet, QTrainer
     from helper import plot
-
+    # Izposoja podprogramov in funkcij iz drugih programov.
 
     MAX_MEMORY = 100_000
     BATCH_SIZE = 1000
     LR = 0.001
+    # Potrebno za omejevanje porabe spomina. LR je koeficient učenje kače.
 
 
     class Agent:
-        #v tem podprogramu program odpre beesedilni dokument in ga bere ter kasneje tudi spreminja
+        # Razred Agent. Agent je posrednik med modelom ter okoljem (igro).
         def __init__(self):
             with open('record.txt', 'r') as f:
                 self.n_games = int(f.read())
@@ -30,9 +33,11 @@
             self.model.load_state_dict(torch.load('./model\model.pth'))
             self.model.eval()
             self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
+        # Inicializacija. Prvo si sposodi shranjene rezultate, nastavi nekaj konstant in si izpododi nevronsko mrežo iz datoteke 'model.pth'.
+        # V primeru, da boste ta program zagnali prvič, spremenite vrstice 25-27 v "self.n_games = 0" in vrstico 33 izbrišite.
         
-        #tukaj je določeno da agent ve kam kača gleda in kam se premika
         def get_state(self, game):
+            # Funkcija, s katero agent dobi informacije o okolju.
             head = game.snake[0]
             point_l = Point(head.x - BLOCK_SIZE, head.y)
             point_r = Point(head.x + BLOCK_SIZE, head.y)
@@ -43,34 +48,34 @@
             dir_r = game.direction == Direction.RIGHT
             dir_u = game.direction == Direction.UP
             dir_d = game.direction == Direction.DOWN
-
+            # Definicije spodaj uporabljenih spremenljivk.
             state = [
 
-                # nevarnost naravnost
+                # Nevarnost spredaj?
                 (dir_r and game.is_collision(point_r)) or
                 (dir_l and game.is_collision(point_l)) or
                 (dir_u and game.is_collision(point_u)) or
                 (dir_d and game.is_collision(point_d)),
 
-                # nevarnost na desni
+                # Nevarnost desno?
                 (dir_u and game.is_collision(point_r)) or
                 (dir_d and game.is_collision(point_l)) or
                 (dir_l and game.is_collision(point_u)) or
                 (dir_r and game.is_collision(point_d)),
 
-                # nevarnost na levi
+                # Nevarnost levo?
                 (dir_d and game.is_collision(point_r)) or
                 (dir_u and game.is_collision(point_l)) or
                 (dir_r and game.is_collision(point_u)) or
                 (dir_l and game.is_collision(point_d)),
 
-                # smeri premikanja
+                # Smer kače.
                 dir_l,
                 dir_r,
                 dir_u,
                 dir_d,
 
-                # lokacija hrane
+                # Relativni položaj hrane. 
                 game.food.x < game.head.x,
                 game.food.x > game.head.x,
                 game.food.y < game.head.y,
@@ -79,22 +84,24 @@
             ]
 
             return np.array(state, dtype=int)
+        # Vrne podatke agentu.
 
         def remember(self, state, action, reward, next_state, done):
             self.memory.append((state, action, reward, next_state, done))
            
         def train_long_memory(self):
             if len(self.memory) > BATCH_SIZE:
-                mini_sample = random.sample(self.memory, BATCH_SIZE)  # number of tuples
+                mini_sample = random.sample(self.memory, BATCH_SIZE)
             else:
                 mini_sample = self.memory
-
+        # Funkcija za ponovno učenje. (Po realni igri model ponovi igro še enkrat).
             states, actions, rewards, next_states, dones = zip(*mini_sample)
             self.trainer.train_step(states, actions, rewards, next_states, dones)
 
         def train_short_memory(self, state, action, reward, next_state, done):
             self.trainer.train_step(state, action, reward, next_state, done)
-
+        # Funkcija za realno-časno učenje.
+        
         def get_action(self, state):
             # random moves: tradeoff exploration / exploitation
             self.epsilon = 80 - self.n_games
@@ -109,6 +116,9 @@
                 final_move[move] = 1
 
             return final_move
+        # Funcija vrne agentu akcijo (kako naj obrne kačo). 
+        # Na začetku bo kača pogosteje delal naključne poteze z namenom učenja, kasneje (po epsilon igrah), pa bo samo še uporabljala znanje modela.
+        # 80 je poljubno spremenljivo. Večje, kot je število, več možnosti ima kača za učenje, trajalo pa bo dlje.
 
     #tukaj je program s katerima se kača uči
     def train():
