@@ -118,41 +118,44 @@
             return final_move
         # Funcija vrne agentu akcijo (kako naj obrne kačo). 
         # Na začetku bo kača pogosteje delal naključne poteze z namenom učenja, kasneje (po epsilon igrah), pa bo samo še uporabljala znanje modela.
-        # 80 je poljubno spremenljivo. Večje, kot je število, več možnosti ima kača za učenje, trajalo pa bo dlje.
+        # Število 80 je poljubno spremenljivo. Večje, kot je število, več možnosti ima kača za učenje, trajalo pa bo dlje.
 
-    #tukaj je program s katerima se kača uči
     def train():
+        # Funkcija za trening modela.
         score = 0
         plot_scores = []
         plot_mean_scores = []
         total_score = 0
+        # Nastavljanje spremenljivk.
         with open('record.txt', 'r') as f:
             record = f.read()
         record = int(record)
         agent = Agent()
         game = SnakeGameAI()
+        # Izposoja podatkov in ustvarjanje okolja ter agenta. 
         while True:
-            # dobi staro stanje
             state_old = agent.get_state(game)
-
-            # premikanje
+            # Staro stanje.
             final_move = agent.get_action(state_old)
-            # perform move
+            # Odločitev modela
             reward, done, score = game.play_step(final_move)
             state_new = agent.get_state(game)
+            # Vrne rezultate in ustvari novo stanje.
 
-            # treniranje kratkoročnega spomina
+            
             agent.train_short_memory(state_old, final_move, reward, state_new, done)
-
-            # zapomnitev
+            # Navadno treniranje.
+            
             agent.remember(state_old, final_move, reward, state_new, done)
-
+            # Shranjevanje podatkov.
+            
             if done:
-                # treniranje dolgoročnega spomina
+                
                 game.reset()
                 agent.n_games += 1
                 agent.train_long_memory()
-
+                # Ponovno treniranje.
+                
                 if score > record:
                     record = score
                     agent.model.save()
@@ -160,7 +163,8 @@
                         f.write(str(record))
                     with open('games.txt', 'w') as f:
                         f.write(str(agent.n_games))
-
+                # Ponastavljanje rekorda.
+                
                 print('Game', agent.n_games, 'Score', score, 'Record:', record)
 
                 plot_scores.append(score)
@@ -170,7 +174,7 @@
                 plot(plot_scores, plot_mean_scores)
 
                 print('Povprečen rezultat: ', mean_score)
-
+                # Glej helper.py.
 
     if __name__ == '__main__':
         train()
