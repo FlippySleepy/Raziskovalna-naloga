@@ -1,5 +1,5 @@
 # Raziskovalna-naloga
-# To je datoteka kjer je razložen eden izmed programov najne kače in sicer program z imenom igra.
+# Igra.py s komentarji.
 
     # Izposojanje knjižnic
     import pygame 
