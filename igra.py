@@ -12,6 +12,7 @@ from collections import namedtuple
 
 import torch
 from model import Linear_QNet
+
 # Knjižnica za strojno učenje ter podprogram iz datoteke model.py.
 
 
@@ -32,6 +33,10 @@ RED = (200, 0, 0)
 BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
+GREY = (212, 197, 193)
+ORANGE1 = (232, 76, 34)
+ORANGE2 = (201, 60 , 21)
+GREEN = (0, 176, 80)
 # Za lažjo uporabo, konstante nastavimo na RGB vrednosti.
 
 BLOCK_SIZE = 20 # Velikost kock v mreži, posledično kačinih členov.
@@ -135,19 +140,33 @@ class SnakeGameAI:
 
     def _update_ui(self):
     # Funckija za osveževanje/posodobitev igre ob vsaki iteraciji.
-        self.display.fill(BLACK)
+        self.display.fill(GREY)
 
         for pt in self.snake:
-            pygame.draw.rect(self.display, BLUE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
+            pygame.draw.rect(self.display, ORANGE1, pygame.Rect(pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
+            pygame.draw.rect(self.display, ORANGE2, pygame.Rect(pt.x + 4, pt.y + 4, 12, 12))
         # Risanje kače.
 
-        pygame.draw.rect(self.display, RED, pygame.Rect(self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
+        pygame.draw.circle(self.display, GREEN, (self.food.x+BLOCK_SIZE//2, self.food.y+BLOCK_SIZE//2), BLOCK_SIZE//2)
         # Risanje hrane.
 
-        text = font.render("Rezultat: " + str(self.score), True, WHITE)
+        text = font.render("Score: " + str(self.score), True, BLACK)
         self.display.blit(text, [0, 0])
-        # Izpis točk.
+
+        with open('record.txt', 'r') as f:
+            record = f.read()
+
+            text2 = font.render("Record: " + str(record), True, BLACK)
+            self.display.blit(text2, [0, 30])
+
+
+        with open('games.txt', 'r') as f:
+            games = f.read()
+
+            text3 = font.render("Games: " + str(games), True, BLACK)
+            self.display.blit(text3, [0, 60])
+
+        # Izpis točk, nagrade in rekorda.
 
         pygame.display.flip()
         # Skupaj z vrstico 138 namenjena osveževanju zaslona.
