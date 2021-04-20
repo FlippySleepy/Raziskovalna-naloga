@@ -8,5 +8,6 @@ Program je napisan v Python 3.8.6 in uporablja naseldnje knjižnice:
 -collections
 -pygame
 -matplotlib
+-IPython
 
 V isti mapi ustvarite še datoteki 'tensors.pth' in 'record.txt'.
