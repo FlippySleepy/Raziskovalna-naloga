@@ -25,16 +25,15 @@ LR = 0.001
 class Agent:
     # Razred Agent. Agent je posrednik med modelom ter okoljem (igro).
     def __init__(self):
-        with open('record.txt', 'r') as f:
+        with open('games.txt', 'r') as f:
             self.n_games = int(f.read())
             print(self.n_games)
-            print("lolol")
 
         self.epsilon = 0
         self.gamma = 0.9
         self.memory = deque(maxlen=MAX_MEMORY)
         self.model = Linear_QNet(11, 256, 3)
-        #self.model.load_state_dict(torch.load('model.pth'))
+        #self.model.load_state_dict(torch.load('model/model.pth'))
         self.model.eval()
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
 
@@ -110,10 +109,9 @@ class Agent:
     # Funkcija za realno-časno učenje.
 
     def get_action(self, state):
-        # random moves: tradeoff exploration / exploitation
-        self.epsilon = 80 - self.n_games
+        self.epsilon = 500 - self.n_games
         final_move = [0, 0, 0]
-        if random.randint(0, 200) < self.epsilon:
+        if random.randint(0, 500) < self.epsilon:
             move = random.randint(0, 2)
             final_move[move] = 1
         else:
@@ -160,6 +158,8 @@ def train():
 
             game.reset()
             agent.n_games += 1
+            with open('games.txt', 'w') as f:
+                f.write(str(agent.n_games))
             agent.train_long_memory()
             # Ponovno treniranje.
 
@@ -182,7 +182,6 @@ def train():
 
             print('Povprečen rezultat: ', mean_score)
             # Glej helper.py.
-
 
 if __name__ == '__main__':
     train()
