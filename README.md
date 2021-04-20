@@ -1,5 +1,5 @@
 # Raziskovalna-naloga
-Tukaj je vse o programu raziskovalne naloge in o tem kaj potrebuješ za delovanje le tega.
+GitHub odlagališče raziskovalne naloge "Strojno učenje v Pythonu".
 
 Program je napisan v Python 3.8.6 in uporablja naseldnje knjižnice:
 
